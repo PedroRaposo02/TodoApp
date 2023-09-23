@@ -1,6 +1,9 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+)
 
 type Todo struct {
 	ID    int    `json:"id"`
@@ -11,6 +14,11 @@ type Todo struct {
 
 func main() {
 	app := fiber.New()
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:8080",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
 	todos := []Todo{}
 
@@ -47,13 +55,14 @@ func main() {
 
 		for i, todo := range todos {
 			if(todo.ID == id) {
-				todos[i].Done = true
+				todos[i].Done = !todo.Done
 				return c.JSON(todos[i])
 			}
 		}
 		// If no todo is found, return 404 and message
 		return c.Status(404).SendString("Todo not found")
 	})
+
 
 	app.Listen(":3000")
 }
